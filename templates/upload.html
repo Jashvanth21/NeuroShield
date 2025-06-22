@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Upload MRI Scan</h2>
+    <form id="uploadForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <!-- Patient Information Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="patient_name" class="form-label">Patient Name*</label>
+                        <input type="text" class="form-control" id="patient_name" name="patient_name" required>
+                        <div class="invalid-feedback">
+                            Please provide patient's name.
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="patient_age" class="form-label">Age*</label>
+                        <input type="number" class="form-control" id="patient_age" name="patient_age" required min="0" max="150">
+                        <div class="invalid-feedback">
+                            Please provide a valid age.
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="patient_gender" class="form-label">Gender*</label>
+                        <select class="form-select" id="patient_gender" name="patient_gender" required>
+                            <option value="">Choose...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a gender.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">MRI Scan Upload</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="file" class="form-label">Select MRI Scan Image*</label>
+                    <input type="file" class="form-control" id="file" name="file" accept=".jpg,.jpeg,.png" required>
+                    <div class="invalid-feedback">
+                        Please select an MRI scan image.
+                    </div>
+                    <div class="form-text">
+                        Supported formats: JPG, JPEG, PNG
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" type="submit" id="submitBtn">
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Upload and Analyze
+            </button>
+        </div>
+    </form>
+
+    <!-- Results Modal -->
+    <div class="modal fade" id="resultsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Analysis Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="resultsContent">
+                    <!-- Results will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" class="btn btn-primary" id="viewReportBtn">View Full Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Form validation
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Update results modal content
+                const resultsContent = document.getElementById('resultsContent');
+                const viewReportBtn = document.getElementById('viewReportBtn');
+                
+                // Update the view report button link
+                viewReportBtn.href = `/results/${result.id}`;
+                
+                // Display results
+                resultsContent.innerHTML = `
+                    <div class="alert alert-success">
+                        Analysis completed successfully!
+                    </div>
+                    <p><strong>Patient:</strong> ${result.patient.name}</p>
+                    <p><strong>Tumor Type:</strong> ${result.results.tumor_type}</p>
+                    <p><strong>Confidence:</strong> ${(result.results.confidence * 100).toFixed(2)}%</p>
+                    ${result.results.tumor_size.size_category ? 
+                        `<p><strong>Size Category:</strong> ${result.results.tumor_size.size_category}</p>` : ''}
+                `;
+                
+                // Show the results modal
+                resultsModal.show();
+                
+                // Reset the form
+                form.reset();
+                form.classList.remove('was-validated');
+            } else {
+                throw new Error(result.error || 'Failed to process image');
+            }
+        } catch (error) {
+            alert(error.message || 'An error occurred during upload');
+        } finally {
+            // Reset loading state
+            submitBtn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+});
+</script>
+{% endblock %} 

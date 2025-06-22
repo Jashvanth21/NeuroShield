@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Analysis Reports</h2>
+                <button onclick="deleteAllReports()" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete All Reports
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if reports %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for report in reports %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ report.results.tumor_type }}</span>
+                        <small class="text-muted">{{ report.date }}</small>
+                    </div>
+                </div>
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='uploads/' + report.filename) }}" 
+                         class="card-img-top report-image" alt="MRI Scan">
+                    <div class="position-absolute bottom-0 end-0 p-2">
+                        <span class="badge bg-success">
+                            {{ "%.1f"|format(report.results.confidence * 100) }}% confidence
+                        </span>
+                    </div>
+                    {% if not report.results.is_mri %}
+                    <div class="position-absolute top-0 start-0 p-2">
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Non-MRI
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if report.results.tumor_size %}
+                    <div class="mb-3">
+                        <h6 class="card-subtitle mb-2 text-muted">Tumor Measurements</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if report.results.tumor_size.get('size_category') %}
+                            <span class="badge {% if report.results.tumor_size.size_category in ['Large', 'Very Large'] %}bg-warning{% else %}bg-info{% endif %}">
+                                {{ report.results.tumor_size.size_category }}
+                            </span>
+                            {% endif %}
+                            {% if report.results.tumor_size.get('area_mm2') %}
+                            <span class="badge bg-info">
+                                Area: {{ "%.1f"|format(report.results.tumor_size.area_mm2) }} mm²
+                            </span>
+                            {% endif %}
+                            {% if report.results.tumor_size.get('diameter_mm') %}
+                            <span class="badge bg-info">
+                                Diameter: {{ "%.1f"|format(report.results.tumor_size.diameter_mm) }} mm
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        <a href="/results/{{ report.id }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                        <button onclick="deleteReport('{{ report.id }}')" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
+                No reports available. Upload an image to get started.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.report-image {
+    height: 200px;
+    object-fit: cover;
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.badge {
+    font-weight: 500;
+}
+</style>
+
+{% block scripts %}
+<script>
+    function deleteReport(reportId) {
+        if (confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+            fetch(`/delete_report/${reportId}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting report: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error deleting report: ' + error);
+            });
+        }
+    }
+
+    function deleteAllReports() {
+        if (confirm('Are you sure you want to delete ALL reports? This action cannot be undone.')) {
+            fetch('/delete_all_reports', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting reports: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error deleting reports: ' + error);
+            });
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Main Card -->
+            <div class="card shadow mb-4">
+                <!-- Header with Patient Name -->
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">{{ report.patient.name }}'s Brain Tumor Analysis</h2>
+                        <a href="{{ url_for('download_report', report_id=report.id) }}" class="btn btn-light">
+                            <i class="bi bi-download"></i> Download Report
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Top Row: Patient Info and Primary Results -->
+                    <div class="row mb-4">
+                        <!-- Patient Information -->
+                        <div class="col-md-4">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">Patient Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <th>Age:</th>
+                                            <td>{{ report.patient.age }} years</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Gender:</th>
+                                            <td>{{ report.patient.gender }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date:</th>
+                                            <td>{{ report.date }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Primary Analysis Results -->
+                        <div class="col-md-8">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Primary Analysis</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <h4 class="text-primary mb-0">{{ report.results.tumor_type }}</h4>
+                                                <small class="text-muted">Detected Tumor Type</small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h4 class="text-primary mb-0">{{ "%.2f"|format(report.results.confidence * 100) }}%</h4>
+                                                <small class="text-muted">Confidence Level</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% if report.results.tumor_size.size_category %}
+                                            <div class="mb-3">
+                                                <h4 class="text-primary mb-0">{{ report.results.tumor_size.size_category }}</h4>
+                                                <small class="text-muted">Size Category</small>
+                                            </div>
+                                            {% endif %}
+                                            {% if report.results.tumor_size.clinical_significance %}
+                                            <div>
+                                                <p class="mb-1"><strong>Clinical Significance:</strong></p>
+                                                <p class="text-muted small">{{ report.results.tumor_size.clinical_significance }}</p>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Row: MRI Image and Measurements -->
+                    <div class="row mb-4">
+                        <!-- MRI Image -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="mb-0">MRI Scan</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="{{ url_for('uploaded_file', filename=report.filename) }}" 
+                                         alt="MRI Scan" 
+                                         class="img-fluid rounded"
+                                         style="max-height: 350px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Assessment -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-{{ report.results.danger_assessment.color }} text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-{{ report.results.danger_assessment.icon }} me-2"></i>
+                                        Risk Assessment - {{ report.results.danger_assessment.level }}
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="lead mb-3">{{ report.results.danger_assessment.details }}</p>
+                                    
+                                    <h6 class="mb-3">Recommendations:</h6>
+                                    <ul class="list-group list-group-flush">
+                                        {% for rec in report.results.danger_assessment.recommendations %}
+                                        <li class="list-group-item">
+                                            <i class="bi bi-arrow-right-circle text-{{ report.results.danger_assessment.color }} me-2"></i>
+                                            {{ rec }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Measurements and Probability -->
+                    <div class="row mb-4">
+                        <!-- Measurements -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="mb-0">Tumor Measurements</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        {% if report.results.tumor_size.area_mm2 %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h4 class="text-primary mb-0">{{ "%.2f"|format(report.results.tumor_size.area_mm2) }}</h4>
+                                                <small class="text-muted">Area (mm²)</small>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% if report.results.tumor_size.diameter_mm %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h4 class="text-primary mb-0">{{ "%.2f"|format(report.results.tumor_size.diameter_mm) }}</h4>
+                                                <small class="text-muted">Diameter (mm)</small>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% if report.results.tumor_size.perimeter_mm %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="border rounded p-3 text-center">
+                                                <h4 class="text-primary mb-0">{{ "%.2f"|format(report.results.tumor_size.perimeter_mm) }}</h4>
+                                                <small class="text-muted">Perimeter (mm)</small>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Probability Distribution -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0">Probability Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Tumor Type</th>
+                                                    <th>Probability</th>
+                                                    <th>Visualization</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for tumor_type, probability in report.results.probabilities.items() %}
+                                                <tr>
+                                                    <td>{{ tumor_type }}</td>
+                                                    <td>{{ "%.2f"|format(probability * 100) }}%</td>
+                                                    <td style="width: 50%;">
+                                                        <div class="progress" style="height: 20px;">
+                                                            <div class="progress-bar bg-primary" 
+                                                                 role="progressbar" 
+                                                                 data-width="{{ probability * 100 }}"
+                                                                 aria-valuenow="{{ probability * 100 }}"
+                                                                 aria-valuemin="0"
+                                                                 aria-valuemax="100">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center mb-4">
+                <a href="{{ url_for('reports') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.card-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+.table th {
+    font-weight: 600;
+}
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 0;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+    });
+});
+</script>
+{% endblock %} 

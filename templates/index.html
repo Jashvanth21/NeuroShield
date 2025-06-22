@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-upload display-1 text-primary mb-3"></i>
+                    <h3 class="card-title">Upload MRI Scan</h3>
+                    <p class="card-text">Upload your brain MRI scan for tumor detection and analysis.</p>
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Upload Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-text display-1 text-primary mb-3"></i>
+                    <h3 class="card-title">View Reports</h3>
+                    <p class="card-text">Access your previous analysis reports and results.</p>
+                    <a href="{{ url_for('reports') }}" class="btn btn-primary">
+                        <i class="bi bi-file-text"></i> View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">About Brain Tumor Detection</h3>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <i class="bi bi-shield-check display-4 text-success mb-3"></i>
+                                <h5>Accurate Detection</h5>
+                                <p>Advanced AI algorithms for precise tumor identification</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
+                                <h5>Detailed Analysis</h5>
+                                <p>Comprehensive size and type analysis of detected tumors</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-center">
+                                <i class="bi bi-file-pdf display-4 text-danger mb-3"></i>
+                                <h5>PDF Reports</h5>
+                                <p>Download detailed analysis reports in PDF format</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New section with detailed information about brain tumors -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Understanding Brain Tumors</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-primary">What are Brain Tumors?</h4>
+                            <p>Brain tumors are abnormal growths of cells in the brain or surrounding tissues. They can be benign (non-cancerous) or malignant (cancerous) and can affect brain function depending on their location, size, and rate of growth.</p>
+                            
+                            <h5 class="mt-3">Common Types of Brain Tumors:</h5>
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item"><strong>Glioma:</strong> Develops from glial cells that support nerve cells. Includes astrocytomas, oligodendrogliomas, and ependymomas.</li>
+                                <li class="list-group-item"><strong>Meningioma:</strong> Forms in the membranes surrounding the brain and spinal cord. Usually benign but can cause symptoms.</li>
+                                <li class="list-group-item"><strong>Pituitary Tumor:</strong> Affects the pituitary gland, which controls hormone production. Can cause hormonal imbalances.</li>
+                                <li class="list-group-item"><strong>Schwannoma:</strong> Develops from Schwann cells that protect nerve cells. Often affects the vestibular nerve.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <h4 class="text-primary">Symptoms and Detection</h4>
+                            <p>Brain tumor symptoms vary depending on the tumor's location, size, and growth rate. Early detection is crucial for effective treatment.</p>
+                            
+                            <h5 class="mt-3">Common Symptoms:</h5>
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item">Headaches that worsen over time</li>
+                                <li class="list-group-item">Seizures or convulsions</li>
+                                <li class="list-group-item">Difficulty with balance or walking</li>
+                                <li class="list-group-item">Changes in vision, hearing, or speech</li>
+                                <li class="list-group-item">Personality or behavior changes</li>
+                                <li class="list-group-item">Nausea or vomiting</li>
+                            </ul>
+                            
+                            <h5 class="mt-3">Detection Methods:</h5>
+                            <p>Magnetic Resonance Imaging (MRI) is the most common and effective method for detecting brain tumors. Our AI-powered system analyzes MRI scans to identify tumors and provide detailed information about their type, size, and characteristics.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h4 class="text-primary">Tumor Size Categories</h4>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Diameter</th>
+                                            <th>Area</th>
+                                            <th>Clinical Significance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Very Small</td>
+                                            <td>&lt; 20mm</td>
+                                            <td>&lt; 314mm²</td>
+                                            <td>Often asymptomatic, may be monitored</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Small</td>
+                                            <td>20-30mm</td>
+                                            <td>314-707mm²</td>
+                                            <td>May cause symptoms depending on location</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Medium</td>
+                                            <td>30-50mm</td>
+                                            <td>707-1,963mm²</td>
+                                            <td>Often requires treatment</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Large</td>
+                                            <td>50-80mm</td>
+                                            <td>1,963-5,027mm²</td>
+                                            <td>Usually requires immediate intervention</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Very Large</td>
+                                            <td>&gt; 80mm</td>
+                                            <td>&gt; 5,027mm²</td>
+                                            <td>Critical condition requiring urgent treatment</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
